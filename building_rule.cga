@@ -1,0 +1,103 @@
+@Group("Building",1)
+attr buildingName = "Triomphe Palace"
+attr totalH = 72.3
+attr groundH = 6
+attr floorH = 3
+attr roofH = 3
+
+@Group("Facade", 2)
+attr borderwallW = 3
+attr windowH = 1.5
+attr windowW = 4
+
+
+
+@Group("Roof U shape",3)
+attr leftwing = 2
+attr mainwing = 1
+attr rightwing = 2
+attr vertical_offset_down = -3
+attr vertical_offset_up = 3
+
+
+//load assets
+const glasstex = "glass_1.jpg"
+const rooftex = "cement_1.jpg"
+const walltex = "wall_1.jpg"
+const borderwindow = "border_window_1.jpg"
+const middlemirror = "middle_mirror_1.jpg"
+const windowbrighttex = "windowbright_1.jpg"
+
+@Start
+Lot --> 
+	extrude(totalH *(-1))Building
+	
+Building -->
+	comp(f) {world.north: FrontFacade| world.up: Roof| world.east: Wall|world.south: FrontFacade|world.west: Wall}
+	
+Roof -->
+	
+	setupProjection(0, scope.xy, scope.sx, scope.sy)	
+	texture(rooftex)
+	projectUV(0)
+	shapeU(mainwing, rightwing, leftwing){shape: Roofdown|remainder: Roofup}
+
+
+Roofup -->
+	extrude(vertical_offset_up)
+
+
+FrontFacade -->
+	split(y){~groundH:Floor(split.index)|{~floorH:Floor(split.index)}*}
+	
+Floor(floorIndex) -->
+	split(x){'0.1: borderWindow | '0.8: FloorSub(floorIndex)| '0.1: borderWindow}
+
+FloorSub(floorIndex) -->
+	case floorIndex == 0:
+		color("#ff884d")
+		extrude(face.normal, 2)
+	else:
+		split(y){'0.5: window1|'0.5: window2}
+
+Wall -->
+	setupProjection(0, scope.xy, 0.2*scope.sx, 0.2*scope.sy)	
+	texture(walltex)
+	projectUV(0)
+
+
+window1-->split(x){'0.4: windowdark|'0.2:MiddleMirror|'0.4:windowdark}
+window2-->split(x){'0.4: windowbright|'0.2:MiddleMirror|'0.4:windowbright}
+
+
+windowdark -->
+	setupProjection(0, scope.xy, scope.sx, scope.sy)	
+	texture(glasstex)
+	projectUV(0)
+
+borderWindow -->
+	setupProjection(0, scope.xy, scope.sx, scope.sy)	
+	texture(borderwindow)
+	projectUV(0)
+	extrude(face.normal, 0.5)
+	
+MiddleMirror -->
+	setupProjection(0, scope.xy, 2*scope.sx, 2*scope.sy)	
+	texture(middlemirror)
+	projectUV(0)
+		
+windowbright -->
+	color("#ffffff")
+
+
+	
+
+	
+	
+
+
+
+
+
+
+
